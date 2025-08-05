@@ -1,0 +1,55 @@
+{
+  "name": "esp32-smbus",
+  "version": "1.0.1",
+  "description": "ESP32-compatible C library for SMBus communication protocol. Provides a subset of SMBus v3.0 protocol for communicating with SMBus-compatible devices over I2C. Fork of DavidAntliff/esp32-smbus.",
+  "keywords": [
+    "smbus",
+    "i2c",
+    "esp32",
+    "esp-idf",
+    "communication",
+    "protocol",
+    "sensor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/poynting/esp32-smbus.git"
+  },
+  "authors": [
+    {
+      "name": "David Antliff",
+      "url": "https://github.com/DavidAntliff",
+      "maintainer": false
+    },
+    {
+      "name": "Poynting",
+      "url": "https://github.com/poynting",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://davidantliff.github.io/esp32-smbus/",
+  "dependencies": {},
+  "frameworks": [
+    "espidf"
+  ],
+  "platforms": [
+    "espressif32"
+  ],
+  "build": {
+    "flags": [],
+    "srcDir": ".",
+    "srcFilter": [
+      "+<smbus.c>"
+    ],
+    "includeDir": "include"
+  },
+  "examples": [
+    {
+      "name": "TSL2561 Example",
+      "base": "https://github.com/DavidAntliff/esp32-tsl2561-example",
+      "files": [],
+      "folders": []
+    }
+  ]
+}
