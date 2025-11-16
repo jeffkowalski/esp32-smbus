@@ -2,6 +2,7 @@
  * MIT License
  *
  * Copyright (c) 2017 David Antliff
+ * Modified for ESP-IDF 5.x i2c_master API
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +28,22 @@
  * @brief Interface definitions for the ESP32-compatible SMBus Protocol component.
  *
  * This component provides structures and functions that are useful for communicating
- * with SMBus-compatible I2C slave devices.
+ * with SMBus-compatible I2C slave devices using the new ESP-IDF 5.x i2c_master API.
  */
 
 #ifndef SMBUS_H
 #define SMBUS_H
 
 #include <stdbool.h>
-#include "driver/i2c.h"
+#include <stdint.h>
+#include "driver/i2c_master.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SMBUS_DEFAULT_TIMEOUT (1000 / portTICK_PERIOD_MS)  ///< Default transaction timeout in ticks
+#define SMBUS_DEFAULT_TIMEOUT_MS (1000)  ///< Default transaction timeout in milliseconds
+
 /**
  * @brief 7-bit or 10-bit I2C slave address.
  */
@@ -51,10 +54,11 @@ typedef uint16_t i2c_address_t;
  */
 typedef struct
 {
-    bool init;                     ///< True if struct has been initialised, otherwise false
-    i2c_port_t i2c_port;           ///< ESP-IDF I2C port number
-    i2c_address_t address;         ///< I2C address of slave device
-    portBASE_TYPE timeout;         ///< Number of ticks until I2C operation timeout
+    bool init;                                ///< True if struct has been initialised, otherwise false
+    i2c_master_bus_handle_t bus_handle;       ///< ESP-IDF I2C master bus handle
+    i2c_master_dev_handle_t device_handle;    ///< ESP-IDF I2C device handle
+    i2c_address_t address;                    ///< I2C address of slave device
+    uint32_t timeout_ms;                      ///< Timeout in milliseconds
 } smbus_info_t;
 
 /**
@@ -74,19 +78,20 @@ void smbus_free(smbus_info_t ** smbus_info);
  * @brief Initialise a SMBus info instance with the specified I2C information.
  *        The I2C timeout defaults to approximately 1 second.
  * @param[in] smbus_info Pointer to SMBus info instance.
- * @param[in] i2c_port I2C port to associate with this SMBus instance.
+ * @param[in] bus_handle I2C master bus handle to associate with this SMBus instance.
  * @param[in] address Address of I2C slave device.
+ * @return ESP_OK if successful, ESP_FAIL or ESP_ERR_* if an error occurred.
  */
-esp_err_t smbus_init(smbus_info_t * smbus_info, i2c_port_t i2c_port, i2c_address_t address);
+esp_err_t smbus_init(smbus_info_t * smbus_info, i2c_master_bus_handle_t bus_handle, i2c_address_t address);
 
 /**
  * @brief Set the I2C timeout.
  *        I2C transactions that do not complete within this period are considered an error.
  * @param[in] smbus_info Pointer to initialised SMBus info instance.
- * @param[in] timeout Number of ticks to wait until the transaction is considered in error.
+ * @param[in] timeout_ms Number of milliseconds to wait until the transaction is considered in error.
  * @return ESP_OK if successful, ESP_FAIL or ESP_ERR_* if an error occurred.
  */
-esp_err_t smbus_set_timeout(smbus_info_t * smbus_info, portBASE_TYPE timeout);
+esp_err_t smbus_set_timeout(smbus_info_t * smbus_info, uint32_t timeout_ms);
 
 /**
  * @brief Send a single bit to a slave device in the place of the read/write bit.
