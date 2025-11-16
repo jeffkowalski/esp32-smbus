@@ -268,7 +268,7 @@ esp_err_t smbus_write_block(const smbus_info_t * smbus_info, uint8_t command, ui
 {
     // Protocol: [S | ADDR | Wr | As | COMMAND | As | LEN | As | DATA-1 | As | DATA-2 | As ... | DATA-LEN | As | P]
     esp_err_t err = ESP_FAIL;
-    if (_is_init(smbus_info) && data && len <= MAX_BLOCK_LEN)
+    if (_is_init(smbus_info) && data)  // len is uint8_t, cannot exceed MAX_BLOCK_LEN (255)
     {
         uint8_t write_buf[MAX_BLOCK_LEN + 2];
         write_buf[0] = command;
@@ -298,10 +298,10 @@ esp_err_t smbus_read_block(const smbus_info_t * smbus_info, uint8_t command, uin
             return _check_i2c_error(err);
         }
 
-        if (slave_len > *len || slave_len > MAX_BLOCK_LEN)
+        if (slave_len > *len)  // Both are uint8_t, cannot exceed MAX_BLOCK_LEN (255)
         {
             ESP_LOGW(TAG, "slave data length %d exceeds buffer len %d bytes", slave_len, *len);
-            slave_len = (*len < MAX_BLOCK_LEN) ? *len : MAX_BLOCK_LEN;
+            slave_len = *len;
         }
 
         // Now read the data bytes
